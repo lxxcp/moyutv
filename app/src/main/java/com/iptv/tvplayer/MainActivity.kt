@@ -399,8 +399,8 @@ class MainActivity : ComponentActivity() {
                     tvStatus.visibility = View.VISIBLE
                     
                     // Auto-recover to built-in if we were on a dead link
-                    if (subscriptionUrl != "https://dv.tvbj.cc.cd/test.txt") {
-                        com.iptv.tvplayer.data.SettingsManager.activeSubscriptionUrl = "https://dv.tvbj.cc.cd/test.txt"
+                    if (subscriptionUrl != "http://129.159.177.216/api/test") {
+                        com.iptv.tvplayer.data.SettingsManager.activeSubscriptionUrl = "http://129.159.177.216/api/test"
                     }
                 }
             }
@@ -1447,7 +1447,7 @@ class MainActivity : ComponentActivity() {
 
                     // If we deleted the active one, fallback
                     if (com.iptv.tvplayer.data.SettingsManager.activeSubscriptionUrl == item.identifier) {
-                        val fallbackUrl = currentSubs.firstOrNull()?.url ?: "https://dv.tvbj.cc.cd/test.txt"
+                        val fallbackUrl = currentSubs.firstOrNull()?.url ?: "http://129.159.177.216/api/test"
                         com.iptv.tvplayer.data.SettingsManager.activeSubscriptionUrl = fallbackUrl
                         loadPlaylist()
                     }

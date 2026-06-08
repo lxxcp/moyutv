@@ -30,7 +30,18 @@ object SettingsManager {
     fun init(context: Context) {
         prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         localPlaylistPath = java.io.File(context.filesDir, "custom_playlist.txt").absolutePath
-        
+
+        // Migrate old default URL https://dv.tvbj.cc.cd/test.txt to http://129.159.177.216/api/test
+        val currentJson = prefs.getString(KEY_SUBSCRIPTION_LIST, "") ?: ""
+        if (currentJson.contains("https://dv.tvbj.cc.cd/test.txt")) {
+            val updatedJson = currentJson.replace("https://dv.tvbj.cc.cd/test.txt", "http://129.159.177.216/api/test")
+            prefs.edit().putString(KEY_SUBSCRIPTION_LIST, updatedJson).apply()
+        }
+        val activeSub = prefs.getString(KEY_ACTIVE_SUBSCRIPTION, "") ?: ""
+        if (activeSub == "https://dv.tvbj.cc.cd/test.txt") {
+            prefs.edit().putString(KEY_ACTIVE_SUBSCRIPTION, "http://129.159.177.216/api/test").apply()
+        }
+
         // Check if we need to migrate old single url to the new list format
         val oldSub = prefs.getString("subscription_url", "") ?: ""
         if (oldSub.isNotEmpty() && subscriptions.isEmpty()) {
@@ -70,7 +81,7 @@ object SettingsManager {
 
     var subscriptions: List<Subscription>
         get() {
-            val defaultJsonStr = "[{\"name\":\"内置节目\",\"url\":\"https://dv.tvbj.cc.cd/test.txt\"}]"
+            val defaultJsonStr = "[{\"name\":\"内置节目\",\"url\":\"http://129.159.177.216/api/test\"}]"
             var jsonStr = prefs.getString(KEY_SUBSCRIPTION_LIST, defaultJsonStr) ?: defaultJsonStr
             if (jsonStr == "[]") jsonStr = defaultJsonStr
             val list = mutableListOf<Subscription>()
@@ -87,7 +98,7 @@ object SettingsManager {
                 }
             } catch (e: Exception) { }
             if (list.isEmpty()) {
-                list.add(Subscription("内置节目", "https://dv.tvbj.cc.cd/test.txt"))
+                list.add(Subscription("内置节目", "http://129.159.177.216/api/test"))
             }
             return list
         }
@@ -107,8 +118,8 @@ object SettingsManager {
         get() {
             val url = prefs.getString(KEY_ACTIVE_SUBSCRIPTION, "") ?: ""
             // Auto-recover if the user was stuck on the old dead default URL
-            if (url == "https://t.freetv.fun/m3u/playlist_all_original.m3u") {
-                return "https://dv.tvbj.cc.cd/test.txt"
+            if (url == "https://t.freetv.fun/m3u/playlist_all_original.m3u" || url == "https://dv.tvbj.cc.cd/test.txt") {
+                return "http://129.159.177.216/api/test"
             }
             return url
         }
